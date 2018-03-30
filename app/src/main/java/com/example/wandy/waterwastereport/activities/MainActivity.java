@@ -11,8 +11,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -51,6 +53,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         camera(view);
+
                         builder.cancel();
                     }
                 });
@@ -420,8 +424,9 @@ public class MainActivity extends AppCompatActivity {
                         builder.create().show();
                         return;
                 }
+                    imageView.setImageBitmap( b);
 
-                imageView.setImageBitmap(b);
+
                 editTextDescription.setText(postModel.getDescription());
                 url = postModel.getImage_url();
             }
