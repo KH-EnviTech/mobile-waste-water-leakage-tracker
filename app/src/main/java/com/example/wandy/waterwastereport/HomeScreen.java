@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.wandy.waterwastereport.activities.ReportScreen;
 import com.example.wandy.waterwastereport.model.Img;
 import com.example.wandy.waterwastereport.model.PostModel;
 
@@ -46,7 +47,7 @@ public class HomeScreen extends AppCompatActivity {
             try {
                 Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
                         getContentResolver(), imageUri);
-                Intent intent = new Intent(this,Report.class);
+                Intent intent = new Intent(this,ReportScreen.class);
                 intent.putExtra("img",imageUri.toString());
                 startActivity(intent);
                 finish();
