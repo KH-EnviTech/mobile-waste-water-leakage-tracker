@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import com.example.wandy.waterwastereport.activities.MainActivity;
+import com.example.wandy.waterwastereport.activities.HomeScreen;
 
 public class Main2Activity extends AppCompatActivity {
 
@@ -18,7 +18,7 @@ public class Main2Activity extends AppCompatActivity {
                try {
                    sleep(2000);
                    Intent intent = new Intent(getApplication(),HomeScreen.class);
-                   getApplicationContext().startActivity(intent);
+                   getApplication().startActivity(intent);
                    finish();
                } catch (InterruptedException e) {
 

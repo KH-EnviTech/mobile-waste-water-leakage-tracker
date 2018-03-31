@@ -1,4 +1,4 @@
-package com.example.wandy.waterwastereport;
+package com.example.wandy.waterwastereport.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.wandy.waterwastereport.R;
 import com.example.wandy.waterwastereport.activities.ReportScreen;
 import com.example.wandy.waterwastereport.model.Img;
 import com.example.wandy.waterwastereport.model.PostModel;

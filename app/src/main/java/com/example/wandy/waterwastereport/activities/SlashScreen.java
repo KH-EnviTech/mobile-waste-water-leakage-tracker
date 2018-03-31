@@ -17,7 +17,7 @@ public class SlashScreen extends AppCompatActivity {
         Handler handler=new Handler();
         Runnable r=new Runnable() {
             public void run() {
-                startActivity(new Intent(SlashScreen.this, MainActivity.class));
+                startActivity(new Intent(SlashScreen.this, HomeScreen.class));
                 finish();
             }
         };
