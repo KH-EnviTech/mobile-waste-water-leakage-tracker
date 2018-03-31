@@ -143,14 +143,14 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
     private void btnChangeCol(View view){
 
        if(R.id.btn_low == view.getId()){
-            btn_low.setBackgroundResource(R.drawable.style_low_click);
+            btn_low.setBackgroundDrawable(getResources().getDrawable(R.drawable.style_low_click));
             btn_low.setTextColor(Color.WHITE);
         }else {
             btn_low.setBackgroundResource(R.drawable.style_low);
             btn_low.setTextColor(getResources().getColor(R.color.low));
         }
         if(R.id.btn_medium == view.getId()){
-            btn_medium.setBackgroundResource(R.drawable.style_medium_click);
+            btn_medium.setBackgroundDrawable(getResources().getDrawable(R.drawable.style_medium_click));
             btn_medium.setTextColor(Color.WHITE);
         }else {
             btn_medium.setBackgroundResource(R.drawable.style_medium);
