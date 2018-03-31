@@ -42,7 +42,7 @@
                     android:layout_margin="5dp"
                     android:weightSum="3">
                     <Button
-                        android:id="@+id/low"
+                        android:id="@+id/btn_low"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/low"
@@ -51,7 +51,7 @@
                         android:textColor="#48bc56"
                         android:layout_margin="5dp"/>
                     <Button
-                        android:id="@+id/medium"
+                        android:id="@+id/btn_medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/medium"
@@ -60,7 +60,7 @@
                         android:textColor="#d68f38"
                         android:layout_margin="5dp"/>
                     <Button
-                        android:id="@+id/serious"
+                        android:id="@+id/btn_serious"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/serious"
@@ -99,11 +99,35 @@
                 </android.support.design.widget.TextInputLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <ProgressBar
+                        android:layout_width="0dp"
+                        android:layout_weight="4"
+                        android:id="@+id/progress_bar"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:max="100"
+                        android:visibility="gone"
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:id="@+id/text_percent"
+                        android:visibility="visible"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="2">
                     <Button
-                        android:id="@+id/reset"
+                        android:id="@+id/btn_reset"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/reset"
@@ -112,12 +136,13 @@
                         android:background="@drawable/style_reset"
                         android:layout_weight="1"/>
                     <Button
-                        android:id="@+id/submit"
+                        android:id="@+id/btn_submit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/submit"
                         android:layout_margin="10dp"
-                        android:background="@drawable/style_submit"
+                        android:textColor="#ffffff"
+                        android:background="@drawable/style_reset"
                         android:layout_weight="1"/>
                 </LinearLayout>
             </LinearLayout>

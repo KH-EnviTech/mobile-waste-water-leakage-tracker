@@ -7,7 +7,7 @@ package com.example.wandy.waterwastereport.config;
 public class Configs {
     public static final Configs instance = new Configs();
 
-    public final String serverURL = "http://35.198.236.190/";
+    public final String serverURL = "http://192.168.1.103:8000/";
 //    public final String serverURL = "http://192.168.100.121/";
     private final String route = serverURL + "api/";
 
