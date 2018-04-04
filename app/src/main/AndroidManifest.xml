@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.wandy.waterwastereport">
+    package="com.cambodia.od4d.wastewaterleakagetracker">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -32,11 +32,7 @@
     </activity>
 
 
-        <activity android:name=".Main2Activity">
-
-        </activity>
         <activity android:name=".activities.HomeScreen" />
-        <activity android:name=".Report"></activity>
         <activity android:name=".activities.History"
             tools:ignore="DuplicateActivity" />
         <activity android:name=".activities.SlashScreen"

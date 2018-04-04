@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true"
-    tools:context="com.example.wandy.waterwastereport.activities.ReportScreen">
+    tools:context="com.cambodia.od4d.wastewaterleakagetracker.activities.ReportScreen">
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
