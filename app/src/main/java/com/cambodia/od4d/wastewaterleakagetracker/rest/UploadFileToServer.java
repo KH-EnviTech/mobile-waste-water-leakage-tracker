@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+
 public class UploadFileToServer extends AsyncTask<Void, Integer, String> {
 
     private float totalSize = 0;

@@ -5,15 +5,19 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
@@ -23,34 +27,23 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.VolleyError;
 import com.cambodia.od4d.wastewaterleakagetracker.R;
-import com.cambodia.od4d.wastewaterleakagetracker.callback.OnRequestStringResult;
 import com.cambodia.od4d.wastewaterleakagetracker.config.Configs;
 import com.cambodia.od4d.wastewaterleakagetracker.model.AreaModel;
-import com.cambodia.od4d.wastewaterleakagetracker.model.ConditionModel;
 import com.cambodia.od4d.wastewaterleakagetracker.model.KeyValue;
 import com.cambodia.od4d.wastewaterleakagetracker.model.PostModel;
-import com.cambodia.od4d.wastewaterleakagetracker.rest.NetworkRequestString;
 import com.cambodia.od4d.wastewaterleakagetracker.rest.UploadFileToServer;
 import com.cambodia.od4d.wastewaterleakagetracker.sqlite.SaveSql;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class ReportScreen extends AppCompatActivity implements View.OnClickListener{
@@ -95,8 +88,10 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
         try {
             Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
                     getContentResolver(), uri);
-            imageView.setImageBitmap(thumbnail);
             imageUri = uri;
+            thumbnail = rotateImage(thumbnail, getImageRotateAngle(getRealPathFromURI(uri)));
+            Toast.makeText(this, "Angle : " +  getImageRotateAngle(getRealPathFromURI(uri)), Toast.LENGTH_SHORT).show();
+            imageView.setImageBitmap(thumbnail);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -112,6 +107,12 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view) {
                 askPermission(Manifest.permission.ACCESS_FINE_LOCATION,7);
+                InputMethodManager inputManager = (InputMethodManager)
+                        ReportScreen.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                inputManager.hideSoftInputFromWindow(btn_submit.getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
+
                 post(view);
             }
         });
@@ -277,14 +278,21 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                 Log.i("----------", response);
                 progressBar.setVisibility(View.GONE);
                 textPercent.setVisibility(View.GONE);
+                Toast.makeText(ReportScreen.this, "Report submitted.", Toast.LENGTH_SHORT).show();
                 reset();
-                Intent intent= new Intent(getApplication(),HomeScreen.class);
-                finish();
-                getApplication().startActivity(intent);
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        startActivity(new Intent(ReportScreen.this,HomeScreen.class));
+                    }
+                },3000);
+
             }
         }).execute();
 
     }
+
     public String getRealPathFromURI(Uri contentUri) {
         String[] proj = {MediaStore.Images.Media.DATA};
         Cursor cursor = managedQuery(contentUri, proj, null, null, null);
@@ -342,6 +350,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                 });
         builder.create().show();
     }
+
 //    void getInfo() {
 //        new NetworkRequestString(this, Configs.instance.info, new HashMap<String, String>(), new OnRequestStringResult() {
 //            @Override
@@ -404,12 +413,14 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
 //        });
 //
 //    }
-private void reset(){
-    editTextDescription.setText("");
-    report.setText("");
-    url = null;
-    imageView.setImageDrawable(null);
-}
+
+    private void reset(){
+        editTextDescription.setText("");
+        report.setText("");
+        url = null;
+        imageView.setImageDrawable(null);
+    }
+
     public void camera() {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, "New Picture");
@@ -420,6 +431,7 @@ private void reset(){
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         startActivityForResult(intent, CAMERA_REQUEST);
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 
@@ -427,16 +439,60 @@ private void reset(){
             try {
                 Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
                         getContentResolver(), imageUri);
-            imageView.setImageBitmap(thumbnail);
+                imageView.setImageBitmap(thumbnail);
             } catch (Exception e) {
                 e.printStackTrace();
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage("Can't display this image!");
                 builder.create().show();
-
             }
-
         }
+    }
+
+    public int getImageRotateAngle(String imagePath) {
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(imagePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (exif != null) {
+            exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+            int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION
+                    , ExifInterface.ORIENTATION_NORMAL);
+            int orientation = 0;
+            switch (exifOrientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    orientation = -90;
+
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    orientation = 180;
+
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    orientation = 90;
+
+                    break;
+
+                case ExifInterface.ORIENTATION_NORMAL:
+                    orientation = 0;
+
+                    break;
+                default:
+                    break;
+            }
+            Toast.makeText(this, "Inmethod: " + orientation, Toast.LENGTH_SHORT).show();
+            return orientation;
+        }
+        return 0;
+    }
+
+    public Bitmap rotateImage(Bitmap sourceImage, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(sourceImage, 0, 0, sourceImage.getWidth(), sourceImage.getHeight(), matrix, true);
     }
 
     private void askPermission(String string,int n){
@@ -470,6 +526,5 @@ private void reset(){
 
         }
     }
-
 }
 
