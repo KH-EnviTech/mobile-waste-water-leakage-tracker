@@ -439,6 +439,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
             try {
                 Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
                         getContentResolver(), imageUri);
+                thumbnail = rotateImage(thumbnail, getImageRotateAngle(getRealPathFromURI(imageUri)));
                 imageView.setImageBitmap(thumbnail);
             } catch (Exception e) {
                 e.printStackTrace();
