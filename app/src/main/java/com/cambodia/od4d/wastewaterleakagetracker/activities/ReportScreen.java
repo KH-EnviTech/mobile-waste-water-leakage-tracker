@@ -55,8 +55,9 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
     Uri imageUri;
     TextView textPercent;
     SaveSql saveSql;
-    String selectedCondition = "";
+    String selectedCondition = "1";
     int selectedArea = 0;
+    public static boolean checkedUpload = false;
 
     boolean hasInternet = true;
 
@@ -84,13 +85,17 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
         btn_serious.setOnClickListener(this);
         progressBar = findViewById(R.id.progress_bar);
         textPercent = findViewById(R.id.text_percent);
+
+        btn_low.setBackgroundDrawable(getResources().getDrawable(R.drawable.style_low_click));
+        btn_low.setTextColor(Color.WHITE);
+
         Uri uri = Uri.parse(intent.getStringExtra("img"));
         try {
             Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
                     getContentResolver(), uri);
             imageUri = uri;
             thumbnail = rotateImage(thumbnail, getImageRotateAngle(getRealPathFromURI(uri)));
-            Toast.makeText(this, "Angle : " +  getImageRotateAngle(getRealPathFromURI(uri)), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Angle : " +  getImageRotateAngle(getRealPathFromURI(uri)), Toast.LENGTH_SHORT).show();
             imageView.setImageBitmap(thumbnail);
         } catch (IOException e) {
             e.printStackTrace();
@@ -112,7 +117,11 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
 
                 inputManager.hideSoftInputFromWindow(btn_submit.getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
+//                showDialog(getApplicationContext());
 
+                if (report.getText().toString().isEmpty()){
+                    report.setText("Please title here");
+                }
                 post(view);
             }
         });
@@ -190,7 +199,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                     DateFormat.format("yyyy-MM-dd", new java.util.Date()) + ""
             ));
 
-            Toast.makeText(this, "Saved to history!!!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Saved to history!!!", Toast.LENGTH_SHORT).show();
 
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -278,13 +287,18 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                 Log.i("----------", response);
                 progressBar.setVisibility(View.GONE);
                 textPercent.setVisibility(View.GONE);
-                Toast.makeText(ReportScreen.this, "Report submitted.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(ReportScreen.this, "Report submitted.", Toast.LENGTH_SHORT).show();
                 reset();
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        startActivity(new Intent(ReportScreen.this,HomeScreen.class));
+//                        startActivity(new Intent(ReportScreen.this,HomeScreen.class));
+
+                        if (checkedUpload)
+                            showDialog("Upload file successfully");
+                        else
+                            showDialog("Upload file failure");
                     }
                 },3000);
 
@@ -483,7 +497,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                 default:
                     break;
             }
-            Toast.makeText(this, "Inmethod: " + orientation, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Inmethod: " + orientation, Toast.LENGTH_SHORT).show();
             return orientation;
         }
         return 0;
@@ -526,6 +540,31 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
 
 
         }
+    }
+
+    public void showDialog(String status){
+        AlertDialog alertDialog = new AlertDialog.Builder(
+                this).create();
+
+        // Setting Dialog Title
+        alertDialog.setTitle("Status");
+
+        // Setting Dialog Message
+        alertDialog.setMessage(status);
+
+        // Setting Icon to Dialog
+//        alertDialog.setIcon(R.drawable.tick);
+
+        // Setting OK Button
+        alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // Write your code here to execute after dialog closed
+                Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 }
 
