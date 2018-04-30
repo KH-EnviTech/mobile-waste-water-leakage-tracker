@@ -2,13 +2,19 @@ package com.cambodia.od4d.wastewaterleakagetracker.rest;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 
+import com.cambodia.od4d.wastewaterleakagetracker.R;
+import com.cambodia.od4d.wastewaterleakagetracker.activities.ReportScreen;
 import com.cambodia.od4d.wastewaterleakagetracker.config.Configs;
 import com.cambodia.od4d.wastewaterleakagetracker.model.KeyValue;
 
@@ -26,6 +32,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import static com.cambodia.od4d.wastewaterleakagetracker.controller.AppController.TAG;
+
 
 public class UploadFileToServer extends AsyncTask<Void, Integer, String> {
 
@@ -33,6 +41,7 @@ public class UploadFileToServer extends AsyncTask<Void, Integer, String> {
     private ArrayList<KeyValue> filePaths;
     private OnExecutionProgress onExecutionProgress;
     private String URL;
+    private Context context;
     @SuppressLint("StaticFieldLeak")
     private Activity activity;
 
@@ -95,7 +104,7 @@ public class UploadFileToServer extends AsyncTask<Void, Integer, String> {
 
             Bitmap b = BitmapFactory.decodeFile(filePaths.get(0).getValue());
 
-            if (b == null){
+            if (b == null) {
                 InputStream image_stream = activity.getContentResolver().openInputStream(Uri.parse(filePaths.get(0).getValue()));
 
                 b = BitmapFactory.decodeStream(image_stream);
@@ -136,9 +145,13 @@ public class UploadFileToServer extends AsyncTask<Void, Integer, String> {
             if (statusCode == 200) {
                 // Server response
                 responseString = EntityUtils.toString(r_entity);
+                Log.i(TAG, "uploadFile: Success");
+                ReportScreen.checkedUpload = true;
 
             } else {
                 responseString = "Error occurred! Http Status Code: " + statusCode;
+                Log.i(TAG, "uploadFile: Failure");
+                ReportScreen.checkedUpload = false;
             }
 
         } catch (Exception e) {
