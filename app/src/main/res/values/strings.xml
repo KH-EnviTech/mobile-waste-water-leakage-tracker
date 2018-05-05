@@ -1,11 +1,9 @@
 <resources>
     <string name="app_name">WaterWasteLeakageTracker</string>
-    <string name="condition">Condition</string>
+    <string name="seriousness">Seriousness</string>
     <string name="low">Low</string>
     <string name="medium">Medium</string>
-    <string name="serious">Serious</string>
-    <string name="report">Report Title</string>
+    <string name="serious">High</string>
+    <string name="report">Title</string>
     <string name="desc">Description</string>
-    <string name="reset">Reset</string>
-    <string name="submit">Submit</string>
 </resources>

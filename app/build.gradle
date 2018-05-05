@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.cambodia.od4d.wastewaterleakagetracker"
-        minSdkVersion 15
+        minSdkVersion 17
         targetSdkVersion 26
         versionCode 4
         multiDexEnabled true

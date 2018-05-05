@@ -12,12 +12,14 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.cambodia.od4d.wastewaterleakagetracker.R;
 import com.cambodia.od4d.wastewaterleakagetracker.activities.ReportScreen;
@@ -29,28 +31,38 @@ import static android.media.MediaRecorder.VideoSource.CAMERA;
 public class HomeScreen extends AppCompatActivity {
     Uri imageUri;
     private final int CAMERA_REQUEST = 1001;
+    int PERMISSION_ALL = 1;
+    boolean doubleBackToExitPressedOnce = false;
+    String[] PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
 
+        if(!hasPermissions(this, PERMISSIONS)){
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        }
+
     }
 
     @SuppressLint("InlinedApi")
     public void doTrack(View view) {
-        final Integer cam = 0x5;
+        /*final Integer cam = 0x5;
         final Integer WRITE_EXST = 0x3;
         final Integer READ_EXST = 0x4;
         askPermission(Manifest.permission.CAMERA,cam);
         askPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,WRITE_EXST);
-        askPermission(Manifest.permission.READ_EXTERNAL_STORAGE,READ_EXST);
+        askPermission(Manifest.permission.READ_EXTERNAL_STORAGE,READ_EXST);*/
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+
+        camera();
+
+       /* if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
             // Permission is granted
             camera();
-        }
+        }*/
 
     }
     public void camera() {
@@ -84,7 +96,38 @@ public class HomeScreen extends AppCompatActivity {
 
         }
     }
-    private void askPermission(String string,int n){
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
+
+    /*private void askPermission(String string,int n){
         if (ContextCompat.checkSelfPermission(getApplication(),
                 string)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -114,7 +157,7 @@ public class HomeScreen extends AppCompatActivity {
 
 
         }
-    }
+    }*/
 
 
 

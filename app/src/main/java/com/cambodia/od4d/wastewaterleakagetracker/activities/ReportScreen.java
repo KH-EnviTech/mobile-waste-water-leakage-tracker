@@ -19,6 +19,8 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,6 +29,7 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -50,12 +53,14 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
 
     private final int CAMERA_REQUEST = 1001;
     private final int HISTORY = 1002;
+    boolean doubleBackToExitPressedOnce = false;
     String url;
     ProgressBar progressBar;
     Uri imageUri;
     TextView textPercent;
     SaveSql saveSql;
     String selectedCondition = "1";
+    ProgressBar mProgressBar;
     int selectedArea = 0;
     public static boolean checkedUpload = false;
 
@@ -64,7 +69,8 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
     ArrayList<AreaModel> areaModels;
 
     ImageView imageView;
-    Button btn_low,btn_medium,btn_serious,btn_reset,btn_submit;
+    Button btn_low,btn_medium,btn_serious;
+    FloatingActionButton btnSummit;
     TextInputEditText report,editTextDescription;
 
     @Override
@@ -76,8 +82,9 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
         btn_low = findViewById(R.id.btn_low);
         btn_medium = findViewById(R.id.btn_medium);
         btn_serious = findViewById(R.id.btn_serious);
-        btn_reset = findViewById(R.id.btn_reset);
-        btn_submit = findViewById(R.id.btn_submit);
+//        btn_reset = findViewById(R.id.btn_reset);
+//        btn_submit = findViewById(R.id.btn_submit);
+        btnSummit = findViewById(R.id.btn_report);
         report = findViewById(R.id.report);
         editTextDescription = findViewById(R.id.description);
         btn_low.setOnClickListener(this);
@@ -85,6 +92,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
         btn_serious.setOnClickListener(this);
         progressBar = findViewById(R.id.progress_bar);
         textPercent = findViewById(R.id.text_percent);
+        mProgressBar = findViewById(R.id.my_progressbar);
 
         btn_low.setBackgroundDrawable(getResources().getDrawable(R.drawable.style_low_click));
         btn_low.setTextColor(Color.WHITE);
@@ -107,7 +115,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                 camera();
             }
         });
-        btn_submit.setOnClickListener(new View.OnClickListener() {
+        btnSummit.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -115,7 +123,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                 InputMethodManager inputManager = (InputMethodManager)
                         ReportScreen.this.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-                inputManager.hideSoftInputFromWindow(btn_submit.getWindowToken(),
+                inputManager.hideSoftInputFromWindow(btnSummit.getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
 //                showDialog(getApplicationContext());
 
@@ -125,12 +133,12 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                 post(view);
             }
         });
-        btn_reset.setOnClickListener(new View.OnClickListener() {
+       /* btn_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 reset();
             }
-        });
+        });*/
 
 
 
@@ -181,7 +189,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
     public void save(View view) {
         if (url != null) {
 
-            Location location = getLocation();
+            Location location = getLocation(view);
             if (location == null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Please turn on you location");
@@ -213,8 +221,10 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
         startActivityForResult(new Intent(this, History.class), HISTORY);
     }
 
-    private Location getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    private Location getLocation(final View view) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -223,7 +233,12 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setPositiveButton("OK", null);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    post(view);
+                }
+            });
             builder.setTitle("Please Allow Location Service!!!");
             builder.setMessage("Location Service can let us find out clear location of report");
             builder.create().show();
@@ -231,6 +246,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
         }
 
         Location location = getLastKnownLocation();
+        Log.e("location", "getLocation: "+location );
         if (location == null) {
             statusCheck();
             return null;
@@ -240,7 +256,7 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
 
     public void post(View view) {
 
-        Location location = getLocation();
+        Location location = getLocation(view);
 
         if (!hasInternet) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -251,11 +267,14 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
         }
 
         if (location == null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            /*AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Please turn on you location");
-            builder.create().show();
+            builder.create().show();*/
             return;
         }
+        mProgressBar.setVisibility(View.VISIBLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
         ArrayList<KeyValue> arrayList = new ArrayList<>();
@@ -285,8 +304,6 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onCompleteExecution(String response) {
                 Log.i("----------", response);
-                progressBar.setVisibility(View.GONE);
-                textPercent.setVisibility(View.GONE);
 //                Toast.makeText(ReportScreen.this, "Report submitted.", Toast.LENGTH_SHORT).show();
                 reset();
 
@@ -294,6 +311,10 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void run() {
 //                        startActivity(new Intent(ReportScreen.this,HomeScreen.class));
+                        progressBar.setVisibility(View.GONE);
+                        textPercent.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.GONE);
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                         if (checkedUpload)
                             showDialog("Upload file successfully");
@@ -559,12 +580,32 @@ public class ReportScreen extends AppCompatActivity implements View.OnClickListe
         alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 // Write your code here to execute after dialog closed
-                Toast.makeText(getApplicationContext(), "You clicked on OK", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(ReportScreen.this,HomeScreen.class));
+                finish();
             }
         });
 
         // Showing Alert Message
         alertDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 }
 
